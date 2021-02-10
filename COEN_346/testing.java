@@ -19,30 +19,35 @@ public class testing {
 }
 
 //code copied online
-class MergeSort_online 
+class MergeSort
 {
     
     public static int count = 0;
-    // Merges two subarrays of arr[].
-    // First subarray is arr[l..m]
-    // Second subarray is arr[m+1..r]
-    void merge(int arr[], int l, int m, int r)// merge method need be revised!!!
+
+    void merge(int array[], int a, int b, int c)// merge method need be revised!!!
     {
         // Find sizes of two subarrays to be merged
-        int n1 = m - l + 1;
-        int n2 = r - m;
+        int size1 = b - a + 1;
+        int size2 = c - b;
  
         /* Create temp arrays */
-        int L[] = new int[n1];
-        int R[] = new int[n2];
+        int left[] = new int[size1];
+        int right[] = new int[size2];
         
-        int print_array[] = new int[n1+n2];
+        int printArray[] = new int[size1+size2];
  
         /*Copy data to temp arrays*/
-        for (int i = 0; i < n1; ++i)
-            L[i] = arr[l + i];
-        for (int j = 0; j < n2; ++j)
-            R[j] = arr[m + 1 + j];
+        while (i<size1 && j<size2) {
+            left[i] = array[a + i];
+            right[j] = array[b + 1 + j];
+        }
+//        /*
+//        for (int i = 0; i < size1; ++i)
+//            left[i] = array[a + i];
+//        for (int j = 0; j < size2; ++j)
+//            right[j] = array[b + 1 + j];
+//
+//         */
         
         
         /* Merge the temp arrays */
@@ -51,35 +56,55 @@ class MergeSort_online
         int i = 0, j = 0;
  
         // Initial index of merged subarry array
-        int k = l;
-        while (i < n1 && j < n2) {
-            if (L[i] <= R[j]) {
-                arr[k] = L[i];
+        int k = a;
+        for (int i = 0; i < size1; ++i) {
+            if (left[i] <= right[j]) {
+                array[k] = left[i];
                 i++;
             }
             else {
-                arr[k] = R[j];
+                array[k] = right[j];
                 j++;
             }
             k++;
         }
+//        while (i < size1 && j < size2) {
+//            if (left[i] <= right[j]) {
+//                array[k] = left[i];
+//                i++;
+//            }
+//            else {
+//                array[k] = right[j];
+//                j++;
+//            }
+//            k++;
+//        }
  
         /* Copy remaining elements of L[] if any */
-        while (i < n1) {
-            arr[k] = L[i];
+        for (int i=0; i<size1; i++){
+            array[k] = left[i];
             i++;
             k++;
         }
- 
-        /* Copy remaining elements of R[] if any */
-        while (j < n2) {
-            arr[k] = R[j];
+//        while (i < size1) {
+//            array[k] = left[i];
+//            i++;
+//            k++;
+//        }
+        for (int j=0; j<size2; j++){
+            array[k] = left[j];
             j++;
             k++;
         }
-        
-        for(int s=0; s<(n1+n2); ++s){
-            print_array[s] = arr[s];
+//        /* Copy remaining elements of R[] if any */
+//        while (j < size2) {
+//            array[k] = right[j];
+//            j++;
+//            k++;
+//        }
+//
+        for(int k=1; k<(size1+size2); k++){
+            printArray[k] = array[k];
         }
     }
  
@@ -89,6 +114,7 @@ class MergeSort_online
         
         Thread thread_test_01;
         thread_test_01 = new Thread(new Runnable(){
+
             public void run(){
                 //count++;// to test thread quantity
                 //System.out.print("count :"+count);
@@ -106,7 +132,7 @@ class MergeSort_online
                 catch (Exception ex){
                     System.out.println("Exception: " + ex);
                 }
-            } 
+            }
         });
         thread_test_01.start();
         System.out.println("Thread start: " + thread_test_01.getName());
@@ -142,14 +168,20 @@ class MergeSort_online
      //code copied online
     public static void main(String args[]) throws InterruptedException
     {
-        
-        int arr[] = { 12, 11, 13, 5, 69, 17, 1000, 900};
-        System.out.println("Given Array");
-        printArray(arr);
-        MergeSort_online ob = new MergeSort_online();
-        ob.sort(arr, 0, arr.length - 1);
-        System.out.println("\nSorted array");
-        printArray(arr);
+        int arrayp[] = {1,10,100,1000,10000};
+        System.out.println("Array before sorted:");
+        printArray(array);
+        MergeSort merge= new MergeSort();
+        merge.sort(array, 0, array.length - 1);
+        System.out.println("\nArray after sorted:");
+        printArray(array);
+//        int arr[] = { 12, 11, 13, 5, 69, 17, 1000, 900};
+//        System.out.println("Given Array");
+//        printArray(arr);
+//        MergeSort_online ob = new MergeSort_online();
+//        ob.sort(arr, 0, arr.length - 1);
+//        System.out.println("\nSorted array");
+//        printArray(arr);
         
         /***
         Thread thread_test = new Thread(new Runnable(){
