@@ -44,7 +44,7 @@ class MergeSort_COEN346
  
         // Initial indexes of first and second subarrays
         int i = 0, j = 0;
-        // Initial index of merged subarry array
+        // Initial index of merged array
         int k = left;
         while (i < n1 && j < n2) {
             if (L[i] <= R[j]) {
@@ -71,7 +71,7 @@ class MergeSort_COEN346
         }      
     }
     // recursive sort by using thread 
-    void sort(int arr[], int left, int right, FileWriter fileWriter) throws IOException
+    void sort(int array[], int left, int right, FileWriter fileWriter) throws IOException
     {  
         Thread thread_test_01;
         thread_test_01 = new Thread(new Runnable(){
@@ -83,10 +83,10 @@ class MergeSort_COEN346
                     if (left < right) {
                         // Find the middle point
                         int mid =left+ (right-left)/2;
-                        sort(arr, left, mid, fileWriter);
-                        sort(arr, mid + 1, right, fileWriter);
+                        sort(array, left, mid, fileWriter);
+                        sort(array, mid + 1, right, fileWriter);
                         // Merge the sorted halves
-                        merge(arr, left, mid, right);
+                        merge(array, left, mid, right);
                     }
                 }
                 catch (Exception ex){
@@ -108,8 +108,8 @@ class MergeSort_COEN346
         }
         
         for(int i =left; i<=right; ++i){
-            System.out.print(arr[i]+" ");//for testing only
-            fileWriter.write(arr[i]+" ");
+            System.out.print(array[I]+" ");//for testing only
+            fileWriter.write(array[I]+" ");
         }
             System.out.println();//for testing only
             fileWriter.write("\n");
@@ -119,7 +119,7 @@ class MergeSort_COEN346
     {
         System.out.println("Before Sorting");//for testing only
         try{
-            ArrayList<String> arrayIn_String = new ArrayList(Files.readAllLines(Paths.get("/Users/yifan/Desktop/","input.txt")));
+            ArrayList<String> arrayIn_String = new ArrayList(Files.readAllLines(Paths.get("input.txt")));
             int[] arrayIn_Int = new int[arrayIn_String.size()];
             
             for(int i=0; i<arrayIn_String.size();i++){
@@ -127,7 +127,7 @@ class MergeSort_COEN346
                 System.out.print(arrayIn_Int[i]+" ");//for testing only
                 System.out.println();//for testing only
             }
-            FileWriter fileWriter = new FileWriter("/Users/yifan/Desktop/output.txt");
+            FileWriter fileWriter = new FileWriter("output.txt");
             MergeSort_COEN346 Obj = new MergeSort_COEN346();
             Obj.sort(arrayIn_Int, 0, arrayIn_Int.length - 1,fileWriter);//call the mergesort
             fileWriter.close();
@@ -140,30 +140,6 @@ class MergeSort_COEN346
             e.printStackTrace();
         }
         
-        //int arr[] = { 12, 11, 13, 5, 69, 17, 1000, 900};
-        //System.out.println("Given Array");
-        //printArray(arr);
-        //MergeSort_online ob = new MergeSort_online();
-        //ob.sort(arr, 0, arr.length - 1);
-        //System.out.println("\nSorted array");
-        //printArray(arr);
-        
-        /***
-        Thread thread_test = new Thread(new Runnable(){
-            public void run(){
-                try{
-                    ob.sort(arr, 0, arr.length - 1);
-                }
-                catch (Exception ex){
-                    System.out.println("Exception: " + ex);
-                }
-                System.out.println("\nSorted array");
-                printArray(arr);
-            }
-        });
-        thread_test.start();
-        thread_test.join();
-        ***/
     }
    
     static void printArray(int arr[])
