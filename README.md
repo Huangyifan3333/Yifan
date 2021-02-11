@@ -10,8 +10,8 @@ The output shall contain:
 
 ## Team Members
 - Jean-Philippe Durand (Git Username: Aeroponz)
-- YOUR_NAME_HERE (Git Username: joeunparkdev)
-- YOUR_NAME_HERE (Git Username: Huangyifan3333)
+- Joeun Park (Git Username: joeunparkdev)
+- Yifan Huang (Git Username: Huangyifan3333)
 
 ## Tools and Technologies
 - Languages:
