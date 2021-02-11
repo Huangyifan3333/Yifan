@@ -1,90 +1,118 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package COEN346_Pro_01;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-/**
- *
- * @author yifan
- */
-public class testing {
-   // empty class in the pacakge
-   //delete it if used in another package
-}
+import java.util.*; 
+import java.nio.charset.StandardCharsets; 
+import java.nio.file.*; 
+import java.io.*; 
 
 class MergeSort_COEN346 
-{
-    //public static int count = 0;// for testing only
-    void merge(int array[], int left, int mid, int right)// merge method need be revised!!!
+{    
+    public static void main(String args[]) throws InterruptedException
+    {
+        // Reading input file and converting it to integer array before starting sort
+        List<String> inputAsString = readInputFile("input.txt"); 
+        List<Integer> inputAsInt = convertStringListToIntList(inputAsString);
+        Integer[] inputAsIntegerArray = inputAsInt.toArray(new Integer[inputAsInt.size()]);
+        int[] intArray = Arrays.stream(inputAsIntegerArray).mapToInt(Integer::intValue).toArray();
+
+        // Print input to console (TEST)
+        
+        System.out.println("\n-----------------------\nInput - Before Sorting:\n-----------------------");
+        printArray(intArray);
+        System.out.println("\n\n-----------------------\nStarting Merge-Sort:\n-----------------------");
+
+        try{
+            FileWriter fileWriter = new FileWriter(".\\COEN_346\\output.txt");
+            sort(intArray, 0, intArray.length - 1,fileWriter);//call the mergesort
+            fileWriter.close();
+            
+            System.out.println("\n-----------------------\nAfter Sorting:\n-----------------------");//for testing only
+            printArray(intArray);//for testing only
+        }
+        catch(IOException e){
+            System.out.print(e);
+            e.printStackTrace();
+        }
+
+        
+        System.out.println("\n\n-----------------------\nDone!\n-----------------------");
+
+  } 
+
+    /**
+     * Merge method used for the merge sort
+     * @param array Array (or sub-array) to be sorted
+     * @param left index
+     * @param mid index
+     * @param right index
+     */
+    static void merge(int array[], int left, int mid, int right)
     {
         int n1 = mid - left + 1;
         int n2 = right - mid;
-        /* Create temp arrays */
-        int L[] = new int[n1];
-        int R[] = new int[n2];
+
+        // Split into smaller arrays
+        int leftArray[] = new int[n1];
+        int rightArray[] = new int[n2];
        
-        /*Copy data to temp arrays*/
+        // Copy data to sub-arrays
         for (int i = 0; i < n1; ++i)
-            L[i] = array[left + i];
+            leftArray[i] = array[left + i];
         for (int j = 0; j < n2; ++j)
-            R[j] = array[mid + 1 + j];
-       
-        /* Merge the temp arrays */
+            rightArray[j] = array[mid + 1 + j];
  
-        // Initial indexes of first and second subarrays
+        // Index
         int i = 0, j = 0;
-        // Initial index of merged array
         int k = left;
+
+        // Merge
         while (i < n1 && j < n2) {
-            if (L[i] <= R[j]) {
-                array[k] = L[i];
+            if (leftArray[i] <= rightArray[j]) {
+                array[k] = leftArray[i];
                 i++;
             }
             else {
-                array[k] = R[j];
+                array[k] = rightArray[j];
                 j++;
             }
             k++;
         }
-        /* Copy remaining elements of L[] if any */
+
+        // Copy leftovers (leftArray)
         while (i < n1) {
-            array[k] = L[i];
+            array[k] = leftArray[i];
             i++;
             k++;
         }
-        /* Copy remaining elements of R[] if any */
+        // Copy leftovers (rightArray)
         while (j < n2) {
-            array[k] = R[j];
+            array[k] = rightArray[j];
             j++;
             k++;
         }      
     }
-    // recursive sort by using thread 
-    void sort(int array[], int left, int right, FileWriter fileWriter) throws IOException
+    /**
+     * Recursive sorting function. Utilizes multithreading.
+     * @param array Array (or sub-array) to be sorted
+     * @param left Index
+     * @param right Index
+     * @param fileWriter Output file
+     * @throws IOException
+     */
+    static void sort(int array[], int left, int right, FileWriter fileWriter) throws IOException
     {  
         Thread thread_test_01;
         thread_test_01 = new Thread(new Runnable(){
             public void run(){
-                //count++;// for testing only
-                //System.out.print("count :"+count);
                 try{
-                    //System.out.println();
                     if (left < right) {
+
                         // Find the middle point
                         int mid =left+ (right-left)/2;
                         sort(array, left, mid, fileWriter);
                         sort(array, mid + 1, right, fileWriter);
+
                         // Merge the sorted halves
                         merge(array, left, mid, right);
                     }
@@ -95,59 +123,82 @@ class MergeSort_COEN346
             } 
         });
         
+        // Print out progress to console and output file
         try {
             thread_test_01.start();
-            System.out.println(thread_test_01.getName() + "start");//for testing only
-            fileWriter.write(thread_test_01.getName() + " start \n");
+            System.out.print(thread_test_01.getName() + " started\n");
+            fileWriter.write(thread_test_01.getName() + " started\n");
        
             thread_test_01.join();
-            System.out.println(thread_test_01.getName() + " finish: ");//for testing only
-            fileWriter.write(thread_test_01.getName() + " finish: ");
+            System.out.print(thread_test_01.getName() + " finished: ");
+            fileWriter.write(thread_test_01.getName() + " finished: ");
         } catch (InterruptedException ex) {
             Logger.getLogger(MergeSort_COEN346.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         for(int i =left; i<=right; ++i){
-            System.out.print(array[I]+" ");//for testing only
-            fileWriter.write(array[I]+" ");
+            System.out.print(array[i]+" ");
+            fileWriter.write(array[i]+" ");
         }
-            System.out.println();//for testing only
+            System.out.println();
             fileWriter.write("\n");
-    }
+    }        
     
-    public static void main(String args[]) throws InterruptedException
+    /**
+     * This function is used to read from an text file.
+     * @param fileName
+     * @return List<String> of the text contained in the file specified
+     */
+    public static List<String> readInputFile(String fileName)
     {
-        System.out.println("Before Sorting");//for testing only
-        try{
-            ArrayList<String> arrayIn_String = new ArrayList(Files.readAllLines(Paths.get("input.txt")));
-            int[] arrayIn_Int = new int[arrayIn_String.size()];
-            
-            for(int i=0; i<arrayIn_String.size();i++){
-                arrayIn_Int[i]=Integer.parseInt(arrayIn_String.get(i));
-                System.out.print(arrayIn_Int[i]+" ");//for testing only
-                System.out.println();//for testing only
-            }
-            FileWriter fileWriter = new FileWriter("output.txt");
-            MergeSort_COEN346 Obj = new MergeSort_COEN346();
-            Obj.sort(arrayIn_Int, 0, arrayIn_Int.length - 1,fileWriter);//call the mergesort
-            fileWriter.close();
-            
-            System.out.println("\nAfter Sorting");//for testing only
-            printArray(arrayIn_Int);//for testing only
-        }
-        catch(IOException e){
-            System.out.print(e);
-            e.printStackTrace();
-        }
-        
+        List<String> inputLines = Collections.emptyList(); 
+
+        // Get Working Directory. Code is one folder lower.
+        String workingDirectory = System.getProperty("user.dir");
+        String subFolder = "COEN_346";
+
+        try
+        { 
+            inputLines = Files.readAllLines(Paths.get(workingDirectory, subFolder, fileName), StandardCharsets.UTF_8); 
+        } 
+  
+        catch (IOException exception) 
+        {   
+            exception.printStackTrace(); 
+        } 
+        return inputLines;
+    }
+
+    /**
+     * Convert a list of string to a list of integers
+     * @param stringList
+     * @return integerList
+     */
+    public static List<Integer> convertStringListToIntList(List<String> stringList)
+    {
+        List<Integer> intList = new ArrayList<Integer>(stringList.size());
+
+        try
+        { 
+            for(String s : stringList) intList.add(Integer.parseInt(s));
+        } 
+  
+        catch (NumberFormatException exception) 
+        {   
+            exception.printStackTrace(); 
+        } 
+        return intList;
     }
    
+    /**
+     * Print an array of integers to the console
+     * @param arr Array to be printed
+     */
     static void printArray(int arr[])
     {
         int n = arr.length;
         for (int i = 0; i < n; ++i)
             System.out.print(arr[i] + " ");
-        System.out.println();
     }
 
 }

@@ -1,30 +1,30 @@
-Thread-2 start 
-Thread-1 start 
-Thread-0 start 
-Thread-3 start 
-Thread-3 finish: 3304 
-Thread-4 start 
-Thread-4 finish: 8221 
-Thread-2 finish: 3304 8221 
-Thread-5 start 
-Thread-6 start 
-Thread-6 finish: 26849 
-Thread-7 start 
-Thread-7 finish: 14038 
-Thread-5 finish: 14038 26849 
-Thread-1 finish: 3304 8221 14038 26849 
-Thread-8 start 
-Thread-9 start 
-Thread-10 start 
-Thread-10 finish: 1509 
-Thread-11 start 
-Thread-11 finish: 6367 
-Thread-9 finish: 1509 6367 
-Thread-12 start 
-Thread-13 start 
-Thread-13 finish: 7856 
-Thread-14 start 
-Thread-14 finish: 21362 
-Thread-12 finish: 7856 21362 
-Thread-8 finish: 1509 6367 7856 21362 
-Thread-0 finish: 1509 3304 6367 7856 8221 14038 21362 26849 
+Thread-0 started
+Thread-1 started
+Thread-2 started
+Thread-3 started
+Thread-3 finished: 3304 
+Thread-4 started
+Thread-4 finished: 8221 
+Thread-2 finished: 3304 8221 
+Thread-5 started
+Thread-6 started
+Thread-6 finished: 26849 
+Thread-7 started
+Thread-7 finished: 14038 
+Thread-5 finished: 14038 26849 
+Thread-1 finished: 3304 8221 14038 26849 
+Thread-8 started
+Thread-9 started
+Thread-10 started
+Thread-10 finished: 1509 
+Thread-11 started
+Thread-11 finished: 6367 
+Thread-9 finished: 1509 6367 
+Thread-12 started
+Thread-13 started
+Thread-13 finished: 7856 
+Thread-14 started
+Thread-14 finished: 21362 
+Thread-12 finished: 7856 21362 
+Thread-8 finished: 1509 6367 7856 21362 
+Thread-0 finished: 1509 3304 6367 7856 8221 14038 21362 26849 
