@@ -17,20 +17,27 @@ class MergeSort_COEN346
         int[] intArray = Arrays.stream(inputAsIntegerArray).mapToInt(Integer::intValue).toArray();
 
         // Print input to console (TEST)
-        
         System.out.println("\n-----------------------\nInput - Before Sorting:\n-----------------------");
         printArray(intArray);
         System.out.println("\n\n-----------------------\nStarting Merge-Sort:\n-----------------------");
 
         try{
+            //Get working 
             String workingDirectory = Paths.get("").toAbsolutePath().toString();
             String subFolder = "COEN_346";
+
+            // Open the output file
             FileWriter fileWriter = new FileWriter(Paths.get(workingDirectory, subFolder, "output.txt").toAbsolutePath().toString());
-            sort(intArray, 0, intArray.length - 1,fileWriter);//call the mergesort
+
+            // Start the merge-sort
+            sort(intArray, 0, intArray.length - 1,fileWriter);
+
+            // Close the output file
             fileWriter.close();
             
-            System.out.println("\n-----------------------\nAfter Sorting:\n-----------------------");//for testing only
-            printArray(intArray);//for testing only
+            // Print results to console
+            System.out.println("\n-----------------------\nAfter Sorting:\n-----------------------");
+            printArray(intArray);
         }
         catch(IOException e){
             System.out.print(e);
