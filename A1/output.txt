@@ -1,3 +1,4 @@
+Thread-0 started
 Thread-2 started
 Thread-1 started
 Thread-3 started
@@ -20,7 +21,6 @@ Thread-11 started
 Thread-11 finished: 6367 
 Thread-9 finished: 1509 6367 
 Thread-12 started
-Thread-0 started
 Thread-13 started
 Thread-13 finished: 7856 
 Thread-14 started
