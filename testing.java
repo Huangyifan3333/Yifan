@@ -24,10 +24,9 @@ class MergeSort_COEN346
         try{
             //Get working 
             String workingDirectory = Paths.get("").toAbsolutePath().toString();
-            String subFolder = "COEN_346";
 
             // Open the output file
-            FileWriter fileWriter = new FileWriter(Paths.get(workingDirectory, subFolder, "output.txt").toAbsolutePath().toString());
+            FileWriter fileWriter = new FileWriter(Paths.get(workingDirectory, "output.txt").toAbsolutePath().toString());
 
             // Start the merge-sort
             sort(intArray, 0, intArray.length - 1,fileWriter);
@@ -164,11 +163,10 @@ class MergeSort_COEN346
 
         // Get Working Directory. Code is one folder lower.
         String workingDirectory = Paths.get("").toAbsolutePath().toString();
-        String subFolder = "COEN_346";
 
         try
         { 
-            inputLines = Files.readAllLines(Paths.get(workingDirectory, subFolder, fileName), StandardCharsets.UTF_8); 
+            inputLines = Files.readAllLines(Paths.get(workingDirectory, fileName), StandardCharsets.UTF_8); 
         } 
   
         catch (IOException exception) 
