@@ -1,11 +1,24 @@
+package COEN346_Pro_02;
+
 import java.util.ArrayList;
 
 public class User {
+    // ---- ATTRIBUTES ----
+    private String identifier = "Unknown";
+    public ArrayList<Process> processes = new ArrayList<Process>();// changed to public
+    private int processCount = -1;
+    
+    // Time shared by each User dynamically 
+    private int userTime =0;
+    
     // ---- CONSTRUCTOR ----
     public User(String inputLine){
         String[] splitInput = inputLine.split(" ");
         identifier = splitInput[0];
         processCount = Integer.parseInt(splitInput[1]);        
+    }
+    public User(){
+        //to test 
     }
 
     // ---- ACCESSORS ----
@@ -17,6 +30,9 @@ public class User {
     }
     public int getProcessCount() {
         return processCount;
+    }
+    public long getUserTime(){
+        return userTime;
     }
 
     // ---- SETTERS ----
@@ -34,6 +50,10 @@ public class User {
     public void addProcess(Process newProcess) {
         processes.add(newProcess);
     }
+    
+    public void setUserTime(int time){
+        userTime = time;
+    }
 
     public void printUser() {
         System.out.print("USER " + this.identifier + ":\n");
@@ -48,8 +68,5 @@ public class User {
     }
 
     
-    // ---- ATTRIBUTES ----
-    private String identifier = "Unknown";
-    private ArrayList<Process> processes = new ArrayList<Process>();
-    private int processCount = -1;
+    
 }

@@ -1,3 +1,5 @@
+package COEN346_Pro_02;
+
 import java.util.*; 
 import java.nio.charset.StandardCharsets; 
 import java.nio.file.*; 
@@ -8,14 +10,25 @@ public class App {
     // ---- GLOBAL VARS ----
     // Quantum Time
     private static int QUANTUM_TIME;
-    private static ArrayList<User> users = new ArrayList<User>();
+    private static final ArrayList<User> users = new ArrayList<User>();
 
     public static void main(String[] args) throws Exception {
 
         // Read input file. This also sets the quantum time and the users
-        readInputFile("input.txt");
+        //readInputFile("input.txt");
 
         // DO MORE STUFF
+        
+        //testing algorithm
+        ArrayList<Process> plist = createProcessList();
+        Scheduler sch = new Scheduler(1,2);
+        plist.forEach(p -> {
+            sch.addProcess(p);
+        });
+        //hardcode the total service time
+        sch.setTotalServiceTime(30);
+        sch.start();
+        
     }
 
     public static void readInputFile(String fileName) {
@@ -29,7 +42,6 @@ public class App {
         }
 
         catch (IOException exception) {
-            exception.printStackTrace();
         }
 
         int inputSize = inputLines.size();
@@ -50,6 +62,23 @@ public class App {
             }
         }
     } 
+    
+    // testing algorithm
+    public static ArrayList<Process> createProcessList(){
+        Process p1=new Process(1, 5, 0);
+        Process p2=new Process(8, 5, 1);
+        Process p3=new Process(15, 5, 2);
+        ArrayList<Process> plist = new ArrayList<>();
+        plist.add(p1);
+        plist.add(p2);
+        plist.add(p3);
+        return plist;
+    }
+    
+    public  static void printMsg(String s){
+       System.out.println(s);
+   }
 
+   
 
 }
