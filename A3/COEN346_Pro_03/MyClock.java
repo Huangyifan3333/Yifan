@@ -51,7 +51,7 @@ public enum MyClock implements Runnable{
                 this.time = this.time + 100;
             } catch (InterruptedException ex) {
                 Logger.getLogger(MyClock.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.print("Clock Time: " + this.time + "\n");
+                this.printMsg("Clock Time: " + this.time + "\n");
             }
         }
     }

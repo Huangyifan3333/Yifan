@@ -5,6 +5,8 @@
  */
 package COEN346_Pro_03;
 
+import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,19 +28,36 @@ public class Process extends Thread {
     // 2: finished
 
     //counting semaphore to run multiple processes concurrently 
-    Semaphore S_process = null;
+    private Semaphore S_process = null;
     // binary semaphore to behave as mutex
-    Semaphore mutex = null;
+    private Semaphore mutex = null;
+
+    private Command command = null;
 
     // ---- CONSTRUCTOR ----
+    public Process(){};
+    
     public Process(String inputLine) {
         String[] splitInput = inputLine.split(" ");
-        this.arrivingTime = Integer.parseInt(splitInput[0]);
-        this.serviceTime = Integer.parseInt(splitInput[1]);
+        this.arrivingTime = Integer.parseInt(splitInput[0]) * 1000;
+        this.serviceTime = Integer.parseInt(splitInput[1]) * 1000;
         COEN346_Pro_03.Process.pid++;
         this.processID = Process.pid;
         this.changeState = false;
         this.processState = 0;//initial stste
+    }
+    // override constructor
+    public Process(String inputLine, Semaphore S, Semaphore mutex) {
+        String[] splitInput = inputLine.split(" ");
+        this.arrivingTime = Integer.parseInt(splitInput[0]) * 1000;
+        this.serviceTime = Integer.parseInt(splitInput[1]) * 1000;
+        COEN346_Pro_03.Process.pid++;
+        this.processID = Process.pid;
+        this.changeState = false;
+        this.processState = 0;//initial stste
+        
+        this.S_process = S;// counting semaphore
+        this.mutex = mutex;// binary semaphore
     }
 
     //getter and setter
@@ -79,18 +98,13 @@ public class Process extends Thread {
     }
 
     public int setProcessState(int processState) {
-        try {
-            this.mutex.acquire();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
-        }
         int time = MyClock.INSTANCE.getTime();
-        this.mutex.release();
+
         if (this.processState != 2) {
             this.processState = processState;
             this.setChangeState(true);
         }
-        return time; 
+        return time;
     }
 
     // get and set Semaphore
@@ -121,43 +135,57 @@ public class Process extends Thread {
         //crtical section 1:
         int timelapse = 0;
         int startTime = 0;
-        this.changeState = true;
+        int remainingTime = this.serviceTime;
+        // this.changeState = true;
         do {
-            try {
-                // to do: add mutex for reading clock!!!
-                this.mutex.acquire();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            //critical section 2:
             int clockTime = MyClock.INSTANCE.getTime(); // read clock
-            this.mutex.release();
 
             switch (this.processState) {
                 case 1 -> {// process started
                     if (this.changeState) {
-                        try {
-                            this.mutex.acquire();
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        //critical section 3:
                         startTime = MyClock.INSTANCE.getTime();//read clock
-                        this.mutex.release();
                         clockTime = startTime;
-                        String msg = "Clock " + clockTime / 1000 + " , Process " + this.processID + "started" + "\n";
+                        String msg = "Clock " + clockTime + " , Process " + this.processID + "started" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
                         this.changeState = false;
                     }
                     
+                    try {
+                        this.mutex.acquire();
+                        //critical section 2 protects execute command:
+                        
+                        // thread wait for random time
+                        this.thead_Wait(this.setRandomTime(remainingTime));
+
+                        // aquire the command from command Queue in Main
+                        int length = this.readCommand(COEN346_Pro_03.Command.commandStringQueue);
+                        
+                        if (length > 0) {
+                            // send command to MMU
+                            this.sendCommand(this.command);
+                            String msg = "Clock " + clockTime + " , Process " + this.processID + ", " 
+                                    + this.command.getCommand() + " " + this.command.getId() + " " 
+                                    + this.command.getValue() + "\n";
+                            this.printMsg(msg);
+                        }
+                        else{
+                            this.printMsg("sending command failed! \n");
+                        }
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                    // critical section end
+                    this.mutex.release();
+                    
                     timelapse = clockTime - startTime;
+                    remainingTime = remainingTime - timelapse;
                     if (timelapse >= this.serviceTime) {
                         this.processState = 2;
-                        String msg = "Clock " + clockTime / 1000 + " , Process " + this.processID + "finished" + "\n";
+                        String msg = "Clock " + clockTime + " , Process " + this.processID + "finished" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
                     }
-                    // to do: send API call....
-
+                  
                     break;
                 }
                 case 2 -> {// process finished
@@ -165,8 +193,9 @@ public class Process extends Thread {
                 }
                 default -> {// process is idle
                     if (this.changeState) {
-                        String msg = "Clock " + clockTime / 1000 + " , Process " + this.processID + "is idle" + "\n";
+                        String msg = "Clock " + clockTime + " , Process " + this.processID + "is idle" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
+                        this.changeState = false;
                     }
                     break;
                 }
@@ -180,12 +209,62 @@ public class Process extends Thread {
 
         //Semaphore release permit
         this.S_process.release();
-        this.printMsg("Process is released, permit = " + this.S_process.availablePermits());
+        this.printMsg("Process is released, permit = " + this.S_process.availablePermits() + "\n");
 
     }
 
+    // aquire the command
+    public int readCommand(Queue<String> commandQueue) throws InterruptedException {
+        // Thread.sleep(10);
+        // dequeue command string
+        String inputLine = commandQueue.remove();
+        // enqueue command string 
+        commandQueue.add(inputLine);
+        
+        String[] splitInput = inputLine.split(" ");
+        if (splitInput.length > 0) {
+            switch (splitInput.length) {
+                case 2:
+                    this.command = new Command(splitInput[0], Integer.parseInt(splitInput[1]), 0);
+                    break;
+                case 3:
+                    this.command = new Command(splitInput[0], Integer.parseInt(splitInput[1]), Integer.parseInt(splitInput[2]));
+                    break;
+                default:
+                    printMsg("read command error! \n");
+                    break;
+            }
+            return splitInput.length;
+        } else {// return -1 if no command was read
+            return -1;
+        }
+    }
+
+    // wait thread for specific time, similar to Thread.sleep(XXX)
+    public void thead_Wait(int waitTime) {
+        int clockTime = MyClock.INSTANCE.getTime();
+        int finishTime = clockTime + waitTime;
+        while (clockTime < finishTime) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            clockTime = MyClock.INSTANCE.getTime();
+        }
+    }
+
+    // set minimum random time
+    int setRandomTime(int remainingTime){
+        Random rand = new Random();
+        return Math.min(rand.nextInt(10000), remainingTime);
+    }
+    //send command to MMU
+    void sendCommand(Command command){
+        COEN346_Pro_03.MMU.commandQueue.add(command);
+    }
     public void printMsg(String string) {
-        System.out.println(string);
+        System.out.print(string);
     }
 
 }
