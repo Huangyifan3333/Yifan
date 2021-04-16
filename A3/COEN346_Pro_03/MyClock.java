@@ -47,8 +47,8 @@ public enum MyClock implements Runnable{
     public void run() {
         while(!this.endClock){
             try {
-                Thread.sleep(100);
-                this.time = this.time + 100;
+                Thread.sleep(10);
+                this.time = this.time + 10;
             } catch (InterruptedException ex) {
                 Logger.getLogger(MyClock.class.getName()).log(Level.SEVERE, null, ex);
                 this.printMsg("Clock Time: " + this.time + "\n");

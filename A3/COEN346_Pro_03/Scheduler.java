@@ -20,17 +20,20 @@ public class Scheduler extends Thread {
     //attributes
     private Queue<Process> readyQueue = null;
     private ArrayList<Process> processArray = null;
+    
+    private boolean processEnd;
 
     public Scheduler() {
         this.readyQueue = new LinkedList<Process>();
         this.processArray = new ArrayList<Process>();
+        this.processEnd= false;
     }
 
     //setter and getter
     public void setReadyQueue(Queue<Process> readyQueue) {
         this.readyQueue = readyQueue;
     }
-
+    //Overrride setter
     public void setReadayQueue() {
         if (this.readyQueue == null) {
             this.printMsg("readuQueue is null \n");
@@ -61,6 +64,7 @@ public class Scheduler extends Thread {
 
     @Override
     public void run() {
+        // initialze ready queue
         this.setReadayQueue();
         if (this.readyQueue.isEmpty()) {
             this.printMsg("readyQueue is not initialized! \n");
@@ -74,27 +78,32 @@ public class Scheduler extends Thread {
         }
 
         int clockTime = MyClock.INSTANCE.getTime(); // read clock
-        while (!MyClock.INSTANCE.isEndClock()) {// In Main thead, set ending clock first, then join the Scheduler!!!
-            // to do...
-            // get arriving time
-            int arrivingTime = this.readyQueue.peek().getArrivingTime();
-            if (clockTime >= arrivingTime) {
-                // dequeue process and start thread by time
-                Process p = this.readyQueue.poll();
-                // add runing process to process array
-                this.processArray.add(p);
-
-                // set process state to start...
-                p.setProcessState(1);
-                p.start();// start thread
+        
+        while (!this.processEnd) {// flag to control the loop
+       
+            if (!this.readyQueue.isEmpty()) {
+                // get arriving time
+                int arrivingTime = this.readyQueue.peek().getArrivingTime();
+                if (clockTime >= arrivingTime) {
+                    // dequeue process and start thread by time
+                    Process p = this.readyQueue.poll();
+                    
+                    // set process state to start...
+                    p.setProcessState(1);
+                    p.start();// start thread
+                    
+                     // add runing process to process array
+                    this.processArray.add(p);
+                }
             }
-
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Scheduler.class.getName()).log(Level.SEVERE, null, ex);
             }
             clockTime = MyClock.INSTANCE.getTime(); // read clock
+            
+            this.updateProcessFlag();
         }
 
         //join the process thread from process array
@@ -131,5 +140,25 @@ public class Scheduler extends Thread {
             }
         }
         return list;
+    }
+    
+    public void updateProcessFlag() {
+        int pNum = Main.processNum;
+        if (pNum == 0) {
+            return;
+        }
+        if (this.processArray.isEmpty()) {
+            return;
+        } else if (this.processArray.size() == pNum) {
+            int tempFlag = 0;
+            for (Process p : this.processArray) {
+                if (p.getProcessState() == 2) {
+                    tempFlag++;
+                }
+            }
+            if (tempFlag == pNum) {
+                this.processEnd = true;
+            }
+        }
     }
 }

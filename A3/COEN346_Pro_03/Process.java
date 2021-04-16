@@ -126,6 +126,10 @@ public class Process extends Thread {
 
     @Override
     public void run() {
+        int timelapse = 0;
+        int startTime = 0;
+        int remainingTime = this.serviceTime;
+        // this.changeState = true;
         try {
             //to do: add counting semaphore equaled to 2 !!!
             this.S_process.acquire();
@@ -133,10 +137,7 @@ public class Process extends Thread {
             Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
         }
         //crtical section 1:
-        int timelapse = 0;
-        int startTime = 0;
-        int remainingTime = this.serviceTime;
-        // this.changeState = true;
+        
         do {
             int clockTime = MyClock.INSTANCE.getTime(); // read clock
 
@@ -145,7 +146,7 @@ public class Process extends Thread {
                     if (this.changeState) {
                         startTime = MyClock.INSTANCE.getTime();//read clock
                         clockTime = startTime;
-                        String msg = "Clock " + clockTime + " , Process " + this.processID + "started" + "\n";
+                        String msg = "Clock " + clockTime + " , Process " + this.processID + " started" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
                         this.changeState = false;
                     }
@@ -163,6 +164,7 @@ public class Process extends Thread {
                         if (length > 0) {
                             // send command to MMU
                             this.sendCommand(this.command);
+                            clockTime = MyClock.INSTANCE.getTime();
                             String msg = "Clock " + clockTime + " , Process " + this.processID + ", " 
                                     + this.command.getCommand() + " " + this.command.getId() + " " 
                                     + this.command.getValue() + "\n";
@@ -182,7 +184,8 @@ public class Process extends Thread {
                     remainingTime = remainingTime - timelapse;
                     if (timelapse >= this.serviceTime) {
                         this.processState = 2;
-                        String msg = "Clock " + clockTime + " , Process " + this.processID + "finished" + "\n";
+                        clockTime = MyClock.INSTANCE.getTime();
+                        String msg = "Clock " + clockTime + " , Process " + this.processID + " finished" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
                     }
                   
@@ -193,6 +196,7 @@ public class Process extends Thread {
                 }
                 default -> {// process is idle
                     if (this.changeState) {
+                        clockTime = MyClock.INSTANCE.getTime();
                         String msg = "Clock " + clockTime + " , Process " + this.processID + "is idle" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
                         this.changeState = false;
@@ -261,7 +265,7 @@ public class Process extends Thread {
     }
     //send command to MMU
     void sendCommand(Command command){
-        COEN346_Pro_03.MMU.commandQueue.add(command);
+        MMU.INSTANCE.getCommandQueue().add(command);
     }
     public void printMsg(String string) {
         System.out.print(string);

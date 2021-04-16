@@ -12,29 +12,54 @@ import java.util.Queue;
  *
  * @author yifan
  */
-public class MMU extends Thread{
+public enum MMU implements Runnable{
+    INSTANCE();
     //attributes
-    private LinkedList<Page> pageList = null;
-    static Queue<Command> commandQueue = null;
+    private boolean endMMU;
+    private LinkedList<Page> mainMemory = null;
+    private Queue<Command> commandQueue = null;
 
-    public MMU() {
-        this.pageList = new LinkedList<>();
-        COEN346_Pro_03.MMU.commandQueue = new LinkedList<>();
+    MMU() {
+        this.endMMU = false;
+        this.mainMemory = new LinkedList<>();
+        this.commandQueue = new LinkedList<>();
     }
 
     // setter
-    public void setPageList(LinkedList<Page> pageList) {
-        this.pageList = pageList;
+    public void setMainMemory(LinkedList<Page> pageList) {
+        this.mainMemory = pageList;
     }
 
+    public void setEndMMU(boolean endMMU) {
+        this.endMMU = endMMU;
+    }
+
+    public boolean isEndMMU() {
+        return endMMU;
+    }
+
+    public LinkedList<Page> getMainMemory() {
+        return mainMemory;
+    }
+
+    public Queue<Command> getCommandQueue() {
+        return commandQueue;
+    }
+    
+    
+    
     // deprecated
     public void addToCommandQueue(Command command){
-        MMU.commandQueue.add(command);
+        this.commandQueue.add(command);
     }
 
+    
     @Override
     public void run() {
-        //to do
+        //to do...
+        while(!this.endMMU){
+            // to do...
+        }
         
     }
     

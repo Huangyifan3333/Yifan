@@ -47,12 +47,12 @@ public class Main {
         Thread clockThread = new Thread(MyClock.INSTANCE);
         clockThread.start();
 
-        MyClock.INSTANCE.setEndClock(true);
+        
         try {
             sch.join();
+            MyClock.INSTANCE.setEndClock(true);
             clockThread.join();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
         }
         
     }
@@ -85,10 +85,12 @@ public class Main {
         
         Semaphore countingSemaphore = null;
         if (Main.processCore > 0) {
+            //set counting semaphore to have maximum processes running concurrently 
             countingSemaphore = new Semaphore(Main.processCore);
         } else {
             System.out.print("read process file error \n");
         }
+        //set binary semaphore
         Semaphore mutex = new Semaphore(1);
         
         if (inputSize > 1) {
