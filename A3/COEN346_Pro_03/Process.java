@@ -165,9 +165,6 @@ public class Process extends Thread {
                         this.mutex.acquire();
                         //critical section 2:  protects execute command:
                         
-                        // thread wait for random time
-                        this.thead_Wait(this.setRandomTime(remainingTime));
-
                         // aquire the command from command Queue in Main
                         int length = this.readCommand(COEN346_Pro_03.Command.commandStringQueue);
                         
@@ -183,6 +180,7 @@ public class Process extends Thread {
                         else{
                             this.printMsg("sending command failed! \n");
                         }
+                        
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -204,7 +202,10 @@ public class Process extends Thread {
                             Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                  
+
+                    // thread wait for random time
+                    this.thead_Wait(this.setRandomTime(remainingTime));
+
                     break;
                 }
                 case 2 -> {// process finished
@@ -282,11 +283,13 @@ public class Process extends Thread {
     
     //send command to MMU
     void sendCommand(Command command) {
-        try {// mutex is protecting access data quque in MMU
+        try {
             MMU.INSTANCE.getMutex_1().acquire();
         } catch (InterruptedException ex) {
             Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // mutex is protecting access data quque in MMU
+        
         // add to commandpid_pair Queue in MMU
         MMU.INSTANCE.addToCommandPid_PairQueue(new CommandPID_Pair(this.processID, command));
 

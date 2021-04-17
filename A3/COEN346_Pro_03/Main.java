@@ -66,8 +66,8 @@ public class Main {
         } catch (InterruptedException e) {
         }
         
-        MyfileIO.INSTANCE.getFileWRToDisk().close();
-        MyfileIO.INSTANCE.getFileWRToOutput().close();
+        //MyfileIO.INSTANCE.getFileWRToDisk().close();
+        //MyfileIO.INSTANCE.getFileWRToOutput().close();
     }
     
     
