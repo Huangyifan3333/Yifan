@@ -5,6 +5,7 @@
  */
 package COEN346_Pro_03;
 
+import java.io.IOException;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
@@ -148,8 +149,14 @@ public class Process extends Thread {
                     if (this.changeState) {
                         startTime = MyClock.INSTANCE.getTime();//read clock
                         clockTime = startTime;
-                        String msg = "Clock: " + clockTime + " , Process " + this.processID + " started" + "\n";
+                        String msg = "Clock: " + clockTime + ", Process " + this.processID + " started" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
+                        try {
+                            //write to output.txt
+                            MyfileIO.INSTANCE.getFileWRToOutput().write(msg);
+                        } catch (IOException ex) {
+                            Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         this.changeState = false;
                     }
                     
@@ -188,8 +195,14 @@ public class Process extends Thread {
                     if (timelapse >= this.serviceTime) {
                         this.processState = 2;
                         clockTime = MyClock.INSTANCE.getTime();
-                        String msg = "Clock: " + clockTime + " , Process " + this.processID + " finished" + "\n";
+                        String msg = "Clock: " + clockTime + ", Process " + this.processID + " finished" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
+                        try {
+                            //write to output.txt
+                            MyfileIO.INSTANCE.getFileWRToOutput().write(msg);
+                        } catch (IOException ex) {
+                            Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                   
                     break;

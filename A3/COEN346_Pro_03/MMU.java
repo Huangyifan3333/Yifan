@@ -28,13 +28,13 @@ public enum MMU implements Runnable {
     private boolean endMMU;
     private LinkedList<Page> mainMemory = null;
     private Queue<CommandPID_Pair> commandPid_PairQueue = null;
-    
+
     //temp disk buffer to store value before writing disk
     private LinkedList<Page> tempDisk = null;
     // binary semaphore behave as mutex
     private Semaphore mutex_1 = null;
     private Semaphore mutex_2 = null;
-    
+
     //deprecated
     private Queue<Command> commandQueue = null;
     private Queue<Integer> processIdQueue = null;
@@ -109,15 +109,15 @@ public enum MMU implements Runnable {
                 // this.printMsg("Enter MMU \n");
                 int clockTime = MyClock.INSTANCE.getTime();
                 // MyClock.INSTANCE.printMsg("Clock " + clockTime + "\n");
-                
+
                 //mutex protection access to data queue
                 this.mutex_1.acquire();
                 // critical section: 
-                
+
                 if (!this.commandPid_PairQueue.isEmpty()) {// access data queue
                     clockTime = MyClock.INSTANCE.getTime();
                     // this.printMsg("Enter MMU \n");
-                    
+
                     CPP = this.commandPid_PairQueue.remove();// access data queue
                     String CString = CPP.getCommand().getCommand();
                     int id = CPP.getCommand().getId();
@@ -163,7 +163,7 @@ public enum MMU implements Runnable {
             } catch (InterruptedException ex) {
                 Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             // realese permit
             this.mutex_1.release();
 
@@ -178,6 +178,8 @@ public enum MMU implements Runnable {
         int clockTime = MyClock.INSTANCE.getTime();
         String msg = "Clock: " + clockTime + ", Proccess " + pid + ", Store: Id " + id + ", value " + value + "\n";
         MyClock.INSTANCE.printMsg(msg);
+        //write to output.txt
+        MyfileIO.INSTANCE.getFileWRToOutput().write(msg);
 
         Page page = new Page(id, value);
         //main memory has empty spot
@@ -187,10 +189,10 @@ public enum MMU implements Runnable {
             this.printMsg("store in main memory \n");
             return 0;
         } else {// main memory is full
-            
+
             // store page in temporary disk
             this.tempDisk.add(new Page(id, value));
-            
+
             // write to disk.txt
             this.writeToDisk(id, value);
             this.printMsg("store in disk \n");
@@ -205,7 +207,9 @@ public enum MMU implements Runnable {
         int clockTime = MyClock.INSTANCE.getTime();
         String msg = "Clock: " + clockTime + ", Proccess " + pid + ", Release: Id " + id + "\n";
         MyClock.INSTANCE.printMsg(msg);
-        
+        //write to output.txt
+        MyfileIO.INSTANCE.getFileWRToOutput().write(msg);
+
         boolean valid = false;
         if (!this.mainMemory.isEmpty()) {
             //search main memory
@@ -237,6 +241,8 @@ public enum MMU implements Runnable {
                     clockTime = MyClock.INSTANCE.getTime();
                     String msg = "Clock: " + clockTime + ", Proccess " + pid + ", Lookup: Id " + id + ", value " + value + "\n";
                     MyClock.INSTANCE.printMsg(msg);
+                    //write to output.txt
+                    MyfileIO.INSTANCE.getFileWRToOutput().write(msg);
 
                     //remove obj and add to the header
                     this.mainMemory.remove(page);
@@ -250,18 +256,18 @@ public enum MMU implements Runnable {
         boolean isSwap = false;
         if (value != -911) {
             isSwap = this.SwapPage(id, value, pid);
-        }
-        else{
+        } else {
             // print to test error 
-            this.printMsg("error value is: "+ value + "\n");
+            this.printMsg("error value is: " + value + "\n");
         }
         // print Lookup after SWAP
         if (isSwap) {
             clockTime = MyClock.INSTANCE.getTime();
             String msg = "Clock: " + clockTime + ", Proccess " + pid + ", Lookup: Id " + id + ", value " + value + "\n";
             MyClock.INSTANCE.printMsg(msg);
-        }
-        else{
+            //write to output.txt
+            MyfileIO.INSTANCE.getFileWRToOutput().write(msg);
+        } else {
             clockTime = MyClock.INSTANCE.getTime();
             String msg = "Clock: " + clockTime + ", Proccess " + pid + ", Lookup: Id " + id + " not found \n";
             MyClock.INSTANCE.printMsg(msg);
@@ -273,7 +279,7 @@ public enum MMU implements Runnable {
     public int searchDisk(int id)
             throws IOException {
         int var = -911;
-        
+
         try {
             this.mutex_2.acquire();
         } catch (InterruptedException ex) {
@@ -285,9 +291,8 @@ public enum MMU implements Runnable {
         ArrayList<String> inputArray
                 = new ArrayList(Files.readAllLines((Paths.get(workingDirectory, "disk.txt")), StandardCharsets.UTF_8));
 
-        
         this.mutex_2.release();
-        
+
         String[] value;
         if (!inputArray.isEmpty()) {
             for (String s : inputArray) {
@@ -301,7 +306,7 @@ public enum MMU implements Runnable {
             }
         }
         // the above is deprecated
-        
+
         // new temp disk
         LinkedList<Page> newTempDisk = new LinkedList<>();
 
@@ -322,7 +327,6 @@ public enum MMU implements Runnable {
         //for (Page p : newTempDisk) {
         //    this.writeToDisk(p.getId(), p.getValue());
         //}
-
         return var;
     }
 
@@ -331,15 +335,14 @@ public enum MMU implements Runnable {
             throws IOException {
         try {
             this.mutex_2.acquire();
- 
+
             // write to disk.txt
             MyfileIO.INSTANCE.getFileWRToDisk().write(id + " " + value + "\n");
-            // test close file
-            // MyfileIO.INSTANCE.getFileWRToDisk().close();
+            
         } catch (InterruptedException ex) {
             Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         this.mutex_2.release();
     }
 
@@ -361,20 +364,22 @@ public enum MMU implements Runnable {
             // store page of main memory in disk.txt
             this.writeToDisk(page.getId(), page.getValue());
         }
-        
+
         //store the sepcific page in main memory
-        boolean isStore=false;
+        boolean isStore = false;
         if (this.mainMemory.size() < Main.pageNum) {
             // add page to main memory header
             this.mainMemory.addFirst(page);
-            isStore =true;
+            isStore = true;
         }
-        
+
         int clock = MyClock.INSTANCE.getTime();
         if (isStore) {
             // print SWAP
-            String e = "Clock: " + clock + ", Memeory Manger, SWAP: " + "Id " + id + " with Value " + value + "\n";
-            this.printMsg(e);
+            String msg = "Clock: " + clock + ", Memeory Manger, SWAP: " + "Id " + id + " with Value " + value + "\n";
+            MyClock.INSTANCE.printMsg(msg);
+            //write to output.txt
+            MyfileIO.INSTANCE.getFileWRToOutput().write(msg);
             return true;
         } else {
             this.printMsg("Clock: " + clock + ", Swap failed \n");
