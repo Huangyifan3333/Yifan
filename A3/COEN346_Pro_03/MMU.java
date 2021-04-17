@@ -96,26 +96,27 @@ public enum MMU implements Runnable {
     @Override
     public void run() {
         // initial value
-        CommandPID_Pair CPP = new CommandPID_Pair(-1, new Command("",-1,-1));
-        
+        CommandPID_Pair CPP = new CommandPID_Pair(-1, new Command("", -1, -1));
+
         while (!this.endMMU) {
             try {
                 // this.printMsg("Enter MMU \n");
-                // to do...
                 int clockTime = MyClock.INSTANCE.getTime();
                 // MyClock.INSTANCE.printMsg("Clock " + clockTime + "\n");
+                
+                //mutex protection access to data queue
                 this.mutex_1.acquire();
-                // protecting access to data queue
-                if (!this.commandPid_PairQueue.isEmpty()) {
+                // critical section: 
+                
+                if (!this.commandPid_PairQueue.isEmpty()) {// access data queue
                     clockTime = MyClock.INSTANCE.getTime();
-                    this.printMsg("Enter MMU \n");
+                    // this.printMsg("Enter MMU \n");
                     
-                    CPP = this.commandPid_PairQueue.remove();
+                    CPP = this.commandPid_PairQueue.remove();// access data queue
                     String CString = CPP.getCommand().getCommand();
                     int id = CPP.getCommand().getId();
                     int value = CPP.getCommand().getValue();
                     int pid = CPP.getPid();
-                    
 
                     switch (CString) {
                         case "Store" -> {
@@ -136,6 +137,7 @@ public enum MMU implements Runnable {
                         }
                         case "Lookup" -> {
                             try {
+                                // call lookup API and print inside API
                                 this.lookupPage(id, pid);
                             } catch (IOException ex) {
                                 Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
@@ -143,22 +145,20 @@ public enum MMU implements Runnable {
                             break;
                         }
                         default -> {
-                            // to do...
+                            // any new API could be added here
                             break;
                         }
                     }
                 } else {
-                    try {
-                        Thread.sleep(10);
-                        // MyClock.INSTANCE.printMsg("Clock " + clockTime + " waiting... \n");
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    // sleep while no comand is coming in
+                    Thread.sleep(10);
+                    // MyClock.INSTANCE.printMsg("Clock " + clockTime + " waiting... \n");
                 }
             } catch (InterruptedException ex) {
                 Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
             }
-
+            
+            // realese permit
             this.mutex_1.release();
 
         }

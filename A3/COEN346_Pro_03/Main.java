@@ -63,12 +63,8 @@ public class Main {
             
             MMUThread.join();
             clockThread.join();
-            
         } catch (InterruptedException e) {
         }
-        
-        
-        
         
         MyfileIO.INSTANCE.getFileWRToDisk().close();
         MyfileIO.INSTANCE.getFileWRToOutput().close();
