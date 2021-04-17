@@ -148,7 +148,7 @@ public class Process extends Thread {
                     if (this.changeState) {
                         startTime = MyClock.INSTANCE.getTime();//read clock
                         clockTime = startTime;
-                        String msg = "Clock " + clockTime + " , Process " + this.processID + " started" + "\n";
+                        String msg = "Clock: " + clockTime + " , Process " + this.processID + " started" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
                         this.changeState = false;
                     }
@@ -168,10 +168,10 @@ public class Process extends Thread {
                             // send command to MMU
                             this.sendCommand(this.command);
                             clockTime = MyClock.INSTANCE.getTime();
-                            String msg = "Clock " + clockTime + " , Process " + this.processID + ", " 
+                            String msg = "Clock: " + clockTime + " , Process " + this.processID + ", " 
                                     + this.command.getCommand() + " " + this.command.getId() + " " 
                                     + this.command.getValue() + "\n";
-                            MyClock.INSTANCE.printMsg(msg);
+                            // MyClock.INSTANCE.printMsg(msg);
                         }
                         else{
                             this.printMsg("sending command failed! \n");
@@ -188,7 +188,7 @@ public class Process extends Thread {
                     if (timelapse >= this.serviceTime) {
                         this.processState = 2;
                         clockTime = MyClock.INSTANCE.getTime();
-                        String msg = "Clock " + clockTime + " , Process " + this.processID + " finished" + "\n";
+                        String msg = "Clock: " + clockTime + " , Process " + this.processID + " finished" + "\n";
                         MyClock.INSTANCE.printMsg(msg);
                     }
                   

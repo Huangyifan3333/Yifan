@@ -162,7 +162,7 @@ public class Main {
         if (inputSize > 0) {
             for (int i = 0; i < inputSize; i++) {
                 Command.commandStringQueue.add(inputLines.get(i));
-                // System.out.print("command: " + inputLines.get(i) + "\n");
+                System.out.print("command: " + inputLines.get(i) + "\n");
             }
         }
 
