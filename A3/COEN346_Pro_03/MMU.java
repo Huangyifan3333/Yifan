@@ -214,7 +214,7 @@ public enum MMU implements Runnable {
                     value = page.getValue();
                     // print Lookup when page found in main memory
                     int clockTime = MyClock.INSTANCE.getTime();
-                    String msg = "Clock: " + clockTime + "Proccess " + pid + ", Lookup: Id " + id + ", value " + value + "\n";
+                    String msg = "Clock: " + clockTime + ", Proccess " + pid + ", Lookup: Id " + id + ", value " + value + "\n";
                     MyClock.INSTANCE.printMsg(msg);
 
                     //remove obj and add to the header
@@ -233,7 +233,7 @@ public enum MMU implements Runnable {
         // print Lookup after SWAP
         if (isSwap) {
             int clockTime = MyClock.INSTANCE.getTime();
-            String msg = "Clock: " + clockTime + "Proccess " + pid + ", Lookup: Id " + id + ", value " + value + "\n";
+            String msg = "Clock: " + clockTime + ", Proccess " + pid + ", Lookup: Id " + id + ", value " + value + "\n";
             MyClock.INSTANCE.printMsg(msg);
         }
         return value;

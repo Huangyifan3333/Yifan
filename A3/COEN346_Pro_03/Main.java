@@ -94,11 +94,11 @@ public class Main {
 
         // Read Process Core number
         COEN346_Pro_03.Main.processCore = Integer.parseInt(inputLines.get(lineCounter++));
-        System.out.print("Process Core: " + Main.processCore + "\n");
+        // System.out.print("Process Core: " + Main.processCore + "\n");
         
         // Read total Process number
         COEN346_Pro_03.Main.processNum = Integer.parseInt(inputLines.get(lineCounter++));
-        System.out.print("Process Number: " + Main.processNum + "\n");
+        // System.out.print("Process Number: " + Main.processNum + "\n");
         
         Semaphore countingSemaphore = null;
         Semaphore mutex = null;
@@ -137,7 +137,7 @@ public class Main {
         
         if(!inputLines.isEmpty()){
             COEN346_Pro_03.Main.pageNum = Integer.parseInt(inputLines.get(0));
-            System.out.print("Page number: " + Main.pageNum + "\n");            
+            // System.out.print("Page number: " + Main.pageNum + "\n");            
         }
         
         //deprecated 
@@ -166,7 +166,7 @@ public class Main {
         if (inputSize > 0) {
             for (int i = 0; i < inputSize; i++) {
                 Command.commandStringQueue.add(inputLines.get(i));
-                System.out.print("command: " + inputLines.get(i) + "\n");
+                // System.out.print("command: " + inputLines.get(i) + "\n");
             }
         }
 
