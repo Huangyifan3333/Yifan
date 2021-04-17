@@ -10,7 +10,8 @@ package COEN346_Pro_03;
  * @author yifan
  */
 public class Page {
-    private int id=0;
+    //default value
+    private int id=-1;
     private int value=-1;
 
     // override constructor
@@ -25,7 +26,8 @@ public class Page {
         this.id = Integer.parseInt(splitInput[0]);
         this.value = Integer.parseInt(splitInput[1]);
     }
-
+    
+    //getter and setter
     public int getId() {
         return id;
     }

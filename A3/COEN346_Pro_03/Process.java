@@ -32,7 +32,9 @@ public class Process extends Thread {
     // binary semaphore to behave as mutex
     private Semaphore mutex = null;
 
+    //command from command file
     private Command command = null;
+    private CommandPID_Pair commandPid_pair = null;
 
     // ---- CONSTRUCTOR ----
     public Process(){};
@@ -131,7 +133,7 @@ public class Process extends Thread {
         int remainingTime = this.serviceTime;
         // this.changeState = true;
         try {
-            //to do: add counting semaphore equaled to 2 !!!
+            // counting semaphore
             this.S_process.acquire();
         } catch (InterruptedException ex) {
             Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
@@ -152,8 +154,9 @@ public class Process extends Thread {
                     }
                     
                     try {
+                        // binary semaphore behaves as mutex
                         this.mutex.acquire();
-                        //critical section 2 protects execute command:
+                        //critical section 2:  protects execute command:
                         
                         // thread wait for random time
                         this.thead_Wait(this.setRandomTime(remainingTime));
@@ -168,7 +171,7 @@ public class Process extends Thread {
                             String msg = "Clock " + clockTime + " , Process " + this.processID + ", " 
                                     + this.command.getCommand() + " " + this.command.getId() + " " 
                                     + this.command.getValue() + "\n";
-                            this.printMsg(msg);
+                            MyClock.INSTANCE.printMsg(msg);
                         }
                         else{
                             this.printMsg("sending command failed! \n");
@@ -177,7 +180,7 @@ public class Process extends Thread {
                         Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
-                    // critical section end
+                    // mutex realese
                     this.mutex.release();
                     
                     timelapse = clockTime - startTime;
@@ -228,10 +231,10 @@ public class Process extends Thread {
         String[] splitInput = inputLine.split(" ");
         if (splitInput.length > 0) {
             switch (splitInput.length) {
-                case 2:
-                    this.command = new Command(splitInput[0], Integer.parseInt(splitInput[1]), 0);
+                case 2:// lookup and release command
+                    this.command = new Command(splitInput[0], Integer.parseInt(splitInput[1]), -1);
                     break;
-                case 3:
+                case 3:// store command
                     this.command = new Command(splitInput[0], Integer.parseInt(splitInput[1]), Integer.parseInt(splitInput[2]));
                     break;
                 default:
@@ -261,11 +264,27 @@ public class Process extends Thread {
     // set minimum random time
     int setRandomTime(int remainingTime){
         Random rand = new Random();
-        return Math.min(rand.nextInt(10000), remainingTime);
+        return Math.min(rand.nextInt(1000), remainingTime);
     }
+    
     //send command to MMU
-    void sendCommand(Command command){
-        MMU.INSTANCE.getCommandQueue().add(command);
+    void sendCommand(Command command) {
+        try {// mutex is protecting access data quque in MMU
+            MMU.INSTANCE.getMutex_1().acquire();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Process.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // add to commandpid_pair Queue in MMU
+        MMU.INSTANCE.addToCommandPid_PairQueue(new CommandPID_Pair(this.processID, command));
+
+        //depreacted 
+        // add command to commandQueue in MMU
+        MMU.INSTANCE.addToCommandQueue(command);
+        // add the current process ID to PID queue in MMU
+        MMU.INSTANCE.addToProcessIdQueue(this.processID);
+        
+        //release permit
+        MMU.INSTANCE.getMutex_1().release();
     }
     public void printMsg(String string) {
         System.out.print(string);

@@ -28,6 +28,8 @@ public class Main {
     public static ArrayList<Process> processList = new ArrayList<Process>();
     // public static Queue<String> commandList = new LinkedList<String>();
     public static int pageNum = 0;
+    
+    //deprecated
     // linkedList page in main memory
     public static LinkedList<Page> pageList = new LinkedList<Page>();
 
@@ -41,20 +43,35 @@ public class Main {
         Main.readFile_process("process.txt");
         Main.readFile_memconfig("memconfig.txt");
         Main.readFile_commands("commands.txt");
-
+        
+        // start scheduler
         Scheduler sch = new Scheduler();
         sch.start();
+        // start clock
         Thread clockThread = new Thread(MyClock.INSTANCE);
         clockThread.start();
+        // start MMU
+        Thread MMUThread = new Thread(MMU.INSTANCE);
+        MMUThread.start();
 
         
         try {
             sch.join();
+            
+            MMU.INSTANCE.setEndMMU(true);
             MyClock.INSTANCE.setEndClock(true);
+            
+            MMUThread.join();
             clockThread.join();
+            
         } catch (InterruptedException e) {
         }
         
+        
+        
+        
+        MyfileIO.INSTANCE.getFileWRToDisk().close();
+        MyfileIO.INSTANCE.getFileWRToOutput().close();
     }
     
     
@@ -84,14 +101,15 @@ public class Main {
         System.out.print("Process Number: " + Main.processNum + "\n");
         
         Semaphore countingSemaphore = null;
+        Semaphore mutex = null;
         if (Main.processCore > 0) {
             //set counting semaphore to have maximum processes running concurrently 
             countingSemaphore = new Semaphore(Main.processCore);
+            //set binary semaphore
+            mutex = new Semaphore(1);
         } else {
             System.out.print("read process file error \n");
         }
-        //set binary semaphore
-        Semaphore mutex = new Semaphore(1);
         
         if (inputSize > 1) {
             while (lineCounter < inputSize) {
@@ -122,6 +140,7 @@ public class Main {
             System.out.print("Page number: " + Main.pageNum + "\n");            
         }
         
+        //deprecated 
         if(Main.pageNum > 0){
             for (int i=0; i<Main.pageNum; i++){
                 // initialize the empty pages to the list

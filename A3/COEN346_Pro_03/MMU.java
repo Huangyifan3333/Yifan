@@ -5,24 +5,46 @@
  */
 package COEN346_Pro_03;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author yifan
  */
-public enum MMU implements Runnable{
+public enum MMU implements Runnable {
     INSTANCE();
     //attributes
     private boolean endMMU;
     private LinkedList<Page> mainMemory = null;
+    private Queue<CommandPID_Pair> commandPid_PairQueue = null;
+
+    private Semaphore mutex_1 = null;
+
+    //deprecated
     private Queue<Command> commandQueue = null;
+    private Queue<Integer> processIdQueue = null;
 
     MMU() {
-        this.endMMU = false;
+        this.endMMU = false;//default state
         this.mainMemory = new LinkedList<>();
+        this.commandPid_PairQueue = new LinkedList<>();
+        //mutex initialized
+        mutex_1 = new Semaphore(1);
+
+        //deprecated
         this.commandQueue = new LinkedList<>();
+        this.processIdQueue = new LinkedList<>();
     }
 
     // setter
@@ -42,30 +64,247 @@ public enum MMU implements Runnable{
         return mainMemory;
     }
 
+    public Queue<CommandPID_Pair> getCommandPid_pair() {
+        return commandPid_PairQueue;
+    }
+
+    public void addToCommandPid_PairQueue(CommandPID_Pair commandPid_pair) {
+        this.commandPid_PairQueue.add(commandPid_pair);
+    }
+
+    public Semaphore getMutex_1() {
+        return mutex_1;
+    }
+
+    // deprecated
     public Queue<Command> getCommandQueue() {
         return commandQueue;
     }
-    
-    
-    
-    // deprecated
-    public void addToCommandQueue(Command command){
+
+    public Queue<Integer> getProcessIdQueue() {
+        return processIdQueue;
+    }
+
+    public void addToProcessIdQueue(int pid) {
+        this.processIdQueue.add(pid);
+    }
+
+    public void addToCommandQueue(Command command) {
         this.commandQueue.add(command);
     }
 
-    
     @Override
     public void run() {
-        //to do...
-        while(!this.endMMU){
-            // to do...
-        }
+        // initial value
+        CommandPID_Pair CPP = new CommandPID_Pair(-1, new Command("",-1,-1));
         
+        while (!this.endMMU) {
+            try {
+                // this.printMsg("Enter MMU \n");
+                // to do...
+                int clockTime = MyClock.INSTANCE.getTime();
+                // MyClock.INSTANCE.printMsg("Clock " + clockTime + "\n");
+                this.mutex_1.acquire();
+                // protecting access to data queue
+                if (!this.commandPid_PairQueue.isEmpty()) {
+                    clockTime = MyClock.INSTANCE.getTime();
+                    this.printMsg("Enter MMU \n");
+                    
+                    CPP = this.commandPid_PairQueue.remove();
+                    String CString = CPP.getCommand().getCommand();
+                    int id = CPP.getCommand().getId();
+                    int value = CPP.getCommand().getValue();
+                    int pid = CPP.getPid();
+                    
+
+                    switch (CString) {
+                        case "Store" -> {
+                            try {
+                                this.storePage(id, value, pid);
+                            } catch (IOException ex) {
+                                Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            break;
+                        }
+                        case "Release" -> {
+                            try {
+                                this.releasePage(id, pid);
+                            } catch (IOException ex) {
+                                Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            break;
+                        }
+                        case "Lookup" -> {
+                            try {
+                                this.lookupPage(id, pid);
+                            } catch (IOException ex) {
+                                Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            break;
+                        }
+                        default -> {
+                            // to do...
+                            break;
+                        }
+                    }
+                } else {
+                    try {
+                        Thread.sleep(10);
+                        // MyClock.INSTANCE.printMsg("Clock " + clockTime + " waiting... \n");
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            this.mutex_1.release();
+
+        }
+
     }
-    
-    
-    
-    
-    
-    
+
+    //API method -- Store, return 0 if store in main memory, return 1 if store in disk.txt
+    public int storePage(int id, int value, int pid)
+            throws IOException {
+        Page page = new Page(id, value);
+        //main memory has empty spot
+        if (this.mainMemory.size() < Main.pageNum) {
+            // add page to main memory header
+            this.mainMemory.addFirst(page);
+            this.printMsg("store in main memory \n");
+            return 0;
+        } else {// main memory is full
+            // to do: write to disk.txt
+            this.writeToDisk(id, value);
+            this.printMsg("store in disk \n");
+            return 1;
+        }
+    }
+
+    //API method -- Release, return true if deleted, otherwise return false
+    public boolean releasePage(int id, int pid)
+            throws IOException {
+        boolean valid = false;
+        if (!this.mainMemory.isEmpty()) {
+            //search main memory
+            for (Page page : this.mainMemory) {
+                if (page.getId() == id) {
+                    valid = true;
+                    this.printMsg("value " + page.getValue() + " was removed \n");
+                    this.mainMemory.remove(page);
+                    return valid;
+                }
+            }
+        }
+        this.printMsg(" no matched value in main memory \n");
+        return valid;
+    }
+
+    //API method -- Lookup, return value if found, 
+    //return -911 if no page found in either memory or disk
+    public int lookupPage(int id, int pid)
+            throws IOException {
+        int value;
+        // search in main memory return if found in memory
+        if (!this.mainMemory.isEmpty()) {
+            for (Page page : this.mainMemory) {
+                if (page.getId() == id) {
+                    value = page.getValue();
+                    // print Lookup when page found in main memory
+                    int clockTime = MyClock.INSTANCE.getTime();
+                    String msg = "Clock: " + clockTime + "Proccess " + pid + ", Lookup: Id " + id + ", value " + value + "\n";
+                    MyClock.INSTANCE.printMsg(msg);
+
+                    //remove obj and add to the header
+                    this.mainMemory.remove(page);
+                    this.mainMemory.addFirst(page);
+                    return value;
+                }
+            }
+        }
+        // search disk and update disk.txt file, return value if found in disk.
+        value = this.searchDisk(id);
+        boolean isSwap = false;
+        if (value != -911) {
+            isSwap = this.SwapPage(id, value, pid);
+        }
+        // print Lookup after SWAP
+        if (isSwap) {
+            int clockTime = MyClock.INSTANCE.getTime();
+            String msg = "Clock: " + clockTime + "Proccess " + pid + ", Lookup: Id " + id + ", value " + value + "\n";
+            MyClock.INSTANCE.printMsg(msg);
+        }
+        return value;
+    }
+
+    // search value by ID, return -911 if not found id
+    public int searchDisk(int id)
+            throws IOException {
+        int var = -911;
+        // read data from disk.txt
+        String workingDirectory = Paths.get("").toAbsolutePath().toString();
+        ArrayList<String> inputArray
+                = new ArrayList(Files.readAllLines((Paths.get(workingDirectory, "disk.txt")), StandardCharsets.UTF_8));
+
+        String[] value;
+        if (!inputArray.isEmpty()) {
+            for (String s : inputArray) {
+                // split String line...
+                value = s.split(" ");
+                if (Integer.parseInt(value[0]) == id) {
+                    var = Integer.parseInt(value[1]);
+                } else {// replace disk.txt, skip the swapped page value
+                    this.writeToDisk(Integer.parseInt(value[0]), Integer.parseInt(value[1]));
+                }
+            }
+        }
+        return var;
+    }
+
+    // write page to disk.txt
+    public void writeToDisk(int id, int value)
+            throws IOException {
+
+        MyfileIO.INSTANCE.getFileWRToDisk().write(id + " " + value + "\n");
+    }
+
+    //write print msg to output.txt
+    public void writeToOutput(String e)
+            throws IOException {
+
+        MyfileIO.INSTANCE.getFileWRToOutput().write(e);
+    }
+
+    // swap the specified page from disk to memory
+    public boolean SwapPage(int id, int value, int pid)
+            throws IOException {
+        Page page = new Page();
+        // check main memory size
+        if (this.mainMemory.size() == Main.pageNum) {
+            // remove the least accessed page in the main memory 
+            page = this.mainMemory.removeLast();
+            // store page of main memory in disk.txt
+            this.writeToDisk(page.getId(), page.getValue());
+        }
+        //store the sepcific page in main memory
+        int isStored = this.storePage(id, value, pid);
+        int clock = MyClock.INSTANCE.getTime();
+        if (isStored == 0) {
+            // print SWAP
+            String e = "Clock: " + clock + ", Memeory Manger, SWAP: " + "Id " + id + " with Value " + value + "\n";
+            this.printMsg(e);
+            return true;
+        } else {
+            this.printMsg("Clock: " + clock + ", Swap failed \n");
+            return false;
+        }
+
+    }
+
+    public void printMsg(String e) {
+        System.out.print(e);
+    }
+
 }

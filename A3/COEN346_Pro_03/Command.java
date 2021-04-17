@@ -13,9 +13,10 @@ import java.util.Queue;
  * @author yifan
  */
 public class Command {
-    private String command;
-    private int id;
-    private int value;
+    //default value
+    private String command = "";
+    private int id = -1;
+    private int value = -1;
     static Queue<String> commandStringQueue = new LinkedList<>();
 
     public Command(String command, int id, int value) {
