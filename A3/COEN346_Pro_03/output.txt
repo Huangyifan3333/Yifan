@@ -1,38 +1,36 @@
-Clock: 1010, Process 2 started
-Clock: 1170, Proccess 2, Store: Id 1, value 5
-Clock: 2010, Process 1 started
-Clock: 2020, Proccess 2, Store: Id 2, value 3
-Clock: 2440, Proccess 1, Store: Id 3, value 7
-Clock: 2500, Memeory Manger, SWAP: Id 3 with Value 7
-Clock: 2510, Proccess 2, Lookup: Id 3, value 7
-Clock: 2820, Proccess 2, Lookup: Id 2, value 3
-Clock: 2860, Proccess 2, Release: Id 1 falied 
-Clock: 3130, Proccess 2, Store: Id 1, value 8
-Clock: 3130, Process 2 finished
-Clock: 3510, Memeory Manger, SWAP: Id 1 with Value 5
-Clock: 3510, Proccess 1, Lookup: Id 1, value 5
+Clock: 1000, Process 2 started
+Clock: 1150, Proccess 2, Store: Id 1, value 5
+Clock: 1870, Proccess 2, Store: Id 2, value 3
+Clock: 2000, Process 1 started
+Clock: 2010, Proccess 1, Store: Id 3, value 7
+Clock: 2360, Memeory Manger, SWAP: Id 3 with Value 7
+Clock: 2370, Proccess 2, Lookup: Id 3, value 7
+Clock: 2400, Proccess 2, Lookup: Id 2, value 3
+Clock: 2540, Proccess 2, Release: Id 1 falied 
+Clock: 2550, Proccess 1, Store: Id 1, value 8
+Clock: 2810, Memeory Manger, SWAP: Id 1 with Value 8
+Clock: 2810, Proccess 2, Lookup: Id 1, value 8
+Clock: 2880, Proccess 2, Store: Id 1, value 5
+Clock: 3080, Proccess 2, Store: Id 2, value 3
+Clock: 3080, Process 2 finished
+Clock: 3570, Proccess 1, Store: Id 3, value 7
 Clock: 4000, Process 3 started
-Clock: 4350, Proccess 3, Store: Id 1, value 5
-Clock: 4690, Proccess 1, Store: Id 2, value 3
-Clock: 4850, Proccess 3, Store: Id 3, value 7
-Clock: 5160, Process 1 finished
-Clock: 5160, Memeory Manger, SWAP: Id 3 with Value 7
-Clock: 5160, Proccess 1, Lookup: Id 3, value 7
-Clock: 5460, Memeory Manger, SWAP: Id 2 with Value 3
-Clock: 5460, Proccess 3, Lookup: Id 2, value 3
-Clock: 6070, Proccess 3, Release: Id 1 falied 
-Clock: 6260, Proccess 3, Store: Id 1, value 8
-Clock: 6330, Memeory Manger, SWAP: Id 1 with Value 5
-Clock: 6330, Proccess 3, Lookup: Id 1, value 5
-Clock: 6370, Proccess 3, Store: Id 1, value 5
-Clock: 6380, Proccess 3, Store: Id 2, value 3
-Clock: 6410, Proccess 3, Store: Id 3, value 7
-Clock: 6430, Memeory Manger, SWAP: Id 3 with Value 7
-Clock: 6430, Proccess 3, Lookup: Id 3, value 7
-Clock: 6460, Memeory Manger, SWAP: Id 2 with Value 3
-Clock: 6460, Proccess 3, Lookup: Id 2, value 3
-Clock: 6750, Proccess 3, Release: Id 1 falied 
-Clock: 6970, Proccess 3, Store: Id 1, value 8
-Clock: 7000, Process 3 finished
-Clock: 7000, Memeory Manger, SWAP: Id 1 with Value 5
-Clock: 7000, Proccess 3, Lookup: Id 1, value 5
+Clock: 4130, Memeory Manger, SWAP: Id 3 with Value 7
+Clock: 4130, Proccess 3, Lookup: Id 3, value 7
+Clock: 4300, Memeory Manger, SWAP: Id 2 with Value 3
+Clock: 4300, Proccess 1, Lookup: Id 2, value 3
+Clock: 4430, Proccess 1, Release: Id 1 falied 
+Clock: 4620, Proccess 1, Store: Id 1, value 8
+Clock: 4710, Memeory Manger, SWAP: Id 1 with Value 8
+Clock: 4710, Proccess 1, Lookup: Id 1, value 8
+Clock: 5710, Proccess 1, Store: Id 1, value 5
+Clock: 5710, Process 1 finished
+Clock: 5810, Proccess 3, Store: Id 2, value 3
+Clock: 6470, Proccess 3, Store: Id 3, value 7
+Clock: 6550, Memeory Manger, SWAP: Id 3 with Value 7
+Clock: 6550, Proccess 3, Lookup: Id 3, value 7
+Clock: 6810, Memeory Manger, SWAP: Id 2 with Value 3
+Clock: 6810, Proccess 3, Lookup: Id 2, value 3
+Clock: 6970, Proccess 3, Release: Id 1 falied 
+Clock: 7150, Proccess 3, Store: Id 1, value 8
+Clock: 7150, Process 3 finished

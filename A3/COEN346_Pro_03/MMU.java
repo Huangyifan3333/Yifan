@@ -199,10 +199,11 @@ public enum MMU implements Runnable {
             return 0;
         } else {// main memory is full
             // store page in temporary disk
-            this.tempDisk.add(new Page(id, value));
+            // this.tempDisk.add(new Page(id, value));
 
             // write to disk.txt
             this.writeToDisk(id, value);
+            
             this.printMsg("store in disk \n");
             return 1;
         }
@@ -305,6 +306,7 @@ public enum MMU implements Runnable {
         }
         // the following is deprecated....
         // read data from disk.txt
+        // MyfileIO.INSTANCE.getFileWRToDisk().flush();
         String workingDirectory = Paths.get("").toAbsolutePath().toString();
         ArrayList<String> inputArray
                 = new ArrayList(Files.readAllLines((Paths.get(workingDirectory, "disk.txt")), StandardCharsets.UTF_8));
@@ -319,7 +321,9 @@ public enum MMU implements Runnable {
                 if (Integer.parseInt(value[0]) == id) {
                     var = Integer.parseInt(value[1]);
                 } else {// replace disk.txt, skip the swapped page value
-                    this.writeToDisk(Integer.parseInt(value[0]), Integer.parseInt(value[1]));
+                    //this.writeToDisk(Integer.parseInt(value[0]), Integer.parseInt(value[1]));
+                    // to do: perform delete line in disk.txt....
+                    
                 }
             }
         }
@@ -337,15 +341,15 @@ public enum MMU implements Runnable {
         // search temp disk
         for (int i=0; i<this.tempDisk.size(); i++) {
             if (this.tempDisk.get(i).getId() == id) {
-                var = this.tempDisk.get(i).getValue();
-                this.tempDisk.remove(this.tempDisk.get(i));
+                //var = this.tempDisk.get(i).getValue();
+                // this.tempDisk.remove(this.tempDisk.get(i));
             } else {
                 // add the new temp disk , skip the value deleted
-                newTempDisk.add(this.tempDisk.get(i));
+                // newTempDisk.add(this.tempDisk.get(i));
             }
         }
         //copy to temp disk
-        this.tempDisk = newTempDisk;
+        // this.tempDisk = newTempDisk;
         
         //release permit
         this.mutex_3.release();
@@ -369,9 +373,10 @@ public enum MMU implements Runnable {
             page = this.mainMemory.removeLast();
 
             // store this removed page in temporary disk
-            this.tempDisk.add(page);
+            // this.tempDisk.add(page);
             // store this removed page in disk.txt
             this.writeToDisk(page.getId(), page.getValue());
+            
         }
 
         //store the sepcific page from disk in main memory 
@@ -407,7 +412,7 @@ public enum MMU implements Runnable {
 
             // write to disk.txt
             MyfileIO.INSTANCE.getFileWRToDisk().write(id + " " + value + "\n");
-
+            MyfileIO.INSTANCE.getFileWRToDisk().flush();
         } catch (InterruptedException ex) {
             Logger.getLogger(MMU.class.getName()).log(Level.SEVERE, null, ex);
         }
